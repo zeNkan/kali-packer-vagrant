@@ -21,6 +21,19 @@ Vagrant.configure("2") do |config|
     vb.memory = "4096"
   end
 
+  config.vm.provider :aws do |aws, override|
+    aws.access_key_id = ENV['AWS_ACCESS_KEY']
+    aws.secret_access_key = ENV['AWS_SECRET_KEY']
+
+    aws.region = "eu-north-1"
+    aws.instance_type = "t1.micro"
+    aws.subnet_id = "subnet-0fe53cc638f581fe8"
+
+    aws.ami = "ami-0351068c0d40b2c12"
+
+    override.ssh.private_key_path = "~/.config/ssh/id_ed25519"
+  end
+
   # Run an ansible playbook within the Vagrant VM. For examples of other provisioners
   # and their usage, please see the Vagrant website
   #
@@ -31,3 +44,4 @@ Vagrant.configure("2") do |config|
   config.ssh.username = "kali"
   config.vbguest.auto_update = false
 end
+

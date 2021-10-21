@@ -33,10 +33,10 @@
       "guest_os_type": "Debian_64",
       "headless": true,
       "http_directory": "http",
-      "iso_checksum": "sha256:265812bc13ab11d40c610424871bdf9198b9e7cad99b06540d96fac67dd704de",
+      "iso_checksum": "sha256:3a199fce1220a09756159682ed87ca16f7735f50dcde4403dc0c60525f90c756",
       "iso_urls": [
-        "iso/kali-linux-2021.1-installer-amd64.iso",
-        "https://cdimage.kali.org/kali-2021.1/kali-linux-2021.1-installer-amd64.iso"
+        "iso/kali-linux-2021.3-installer-amd64.iso",
+        "https://cdimage.kali.org/kali-2021.3/kali-linux-2021.3-installer-amd64.iso"
       ],
       "shutdown_command": "echo 'kali'|sudo -S shutdown -P now",
       "ssh_password": "kali",
@@ -93,10 +93,10 @@
       "guest_os_type": "debian8-64",
       "headless": true,
       "http_directory": "http",
-      "iso_checksum": "sha256:265812bc13ab11d40c610424871bdf9198b9e7cad99b06540d96fac67dd704de",
+      "iso_checksum": "sha256:3a199fce1220a09756159682ed87ca16f7735f50dcde4403dc0c60525f90c756",
       "iso_urls": [
-        "iso/kali-linux-2021.1-installer-amd64.iso",
-        "https://cdimage.kali.org/kali-2021.1/kali-linux-2021.1-installer-amd64.iso"
+        "iso/kali-linux-2021.3-installer-amd64.iso",
+        "https://cdimage.kali.org/kali-2021.3/kali-linux-2021.3-installer-amd64.iso"
       ],
       "output_directory": "output-vmware-iso",
       "shutdown_command": "echo 'kali'|sudo -S shutdown -P now",
@@ -112,6 +112,51 @@
         "memsize": "4096",
         "numvcpus": "1"
       }
+    },
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `vpc_region`}}",
+      "launch_block_device_mappings": [
+        {          
+          "device_name": "/dev/sda1",
+          "volume_size": 40,
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
+      "vpc_filter": {
+        "filters": {
+          "tag:Name": "main-vpc",
+          "isDefault": "false"
+        }
+      },
+      "subnet_filter": {
+        "filters":  {
+          "tag:Name": "packer-build-pub-subnet"
+        }
+      },
+      "associate_public_ip_address": true,
+      "security_group_filter": {
+        "filters": {
+          "tag:Name": "packer-build-sg"
+        }
+      },
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "kali-linux-2021.*",
+          "root-device-type": "ebs"
+        },
+        "owners":[
+          "679593333241"
+        ],
+        "most_recent": true
+      },
+      "instance_type": "{{user `instance_type`}}",
+      "ssh_username": "{{user `username`}}",
+      "ami_name": "gold-ami-kali-2021-{{isotime | clean_resource_name}}"
     }
   ],
   "provisioners": [
@@ -159,7 +204,11 @@
   ],
   "variables": {
     "password": "kali",
-    "username": "kali"
+    "username": "kali",
+    "aws_access_key": "${aws_access_key}",
+    "aws_secret_key": "${aws_secret_key}",
+    "vpc_region": "${vpc_region}",
+    "instance_type": "${instance_type}"
   }
 }
 
